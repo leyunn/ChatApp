@@ -48,9 +48,25 @@ public class FriendController {
         }
         User user = accountService.findUser(id);
         User friend = accountService.findUser(friendForm.getId());
+        if(friendService.isYourFriend(user, friend)){
+            return ResponseEntity.status(409).body(new ErrorResponse("is your friend"));
+        }
         friendService.addFriend(user, friend);
 
         return ResponseEntity.status(200).body(util.EMPTY_RESPONSE);
+    }
+
+    @GetMapping("/search/{id}")
+    public ResponseEntity<?> searchFriend(@PathVariable String id, @RequestHeader("Authorization") String token, @RequestBody FriendForm friendForm) {
+        if(!accountService.isAuthenticated(id, token)){
+            return ResponseEntity.status(401).body(new ErrorResponse("authentication failed"));
+        }
+        if(!accountService.checkUserExist(friendForm.getId())){
+            return ResponseEntity.status(404).body(new ErrorResponse("user not exist"));
+        }
+        User friend = accountService.findUser(friendForm.getId());
+
+        return ResponseEntity.status(200).body(friend.toDTO());
     }
 
     @PostMapping("/message/{id}")
