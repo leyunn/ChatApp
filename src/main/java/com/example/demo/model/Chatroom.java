@@ -33,4 +33,6 @@ public class Chatroom {
     @JsonIgnore
     private LocalDateTime lastModified;
 
+    private String lastMessage;
+
 }

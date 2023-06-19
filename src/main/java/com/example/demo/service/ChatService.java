@@ -82,6 +82,7 @@ public class ChatService {
         message.setTime(LocalDateTime.now());
         messageRepo.save(message);
         room.setLastModified(LocalDateTime.now());
+        room.setLastMessage(message.getSender().getName()+": "+message.getContent());
         chatroomRepo.save(room);
     }
 

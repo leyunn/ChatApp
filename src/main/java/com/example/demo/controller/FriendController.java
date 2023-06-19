@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Chatroom;
+import com.example.demo.model.Message;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDTO;
 import com.example.demo.response.ErrorResponse;
@@ -57,16 +58,31 @@ public class FriendController {
     }
 
     @GetMapping("/search/{id}")
-    public ResponseEntity<?> searchFriend(@PathVariable String id, @RequestHeader("Authorization") String token, @RequestBody FriendForm friendForm) {
+    public ResponseEntity<?> searchFriend(@PathVariable String id, @RequestHeader("Authorization") String token, @RequestParam String friendId) {
         if(!accountService.isAuthenticated(id, token)){
             return ResponseEntity.status(401).body(new ErrorResponse("authentication failed"));
         }
-        if(!accountService.checkUserExist(friendForm.getId())){
+        if(!accountService.checkUserExist(friendId)){
             return ResponseEntity.status(404).body(new ErrorResponse("user not exist"));
         }
-        User friend = accountService.findUser(friendForm.getId());
+        User friend = accountService.findUser(friendId);
 
         return ResponseEntity.status(200).body(friend.toDTO());
+    }
+
+    @GetMapping("/messages/{id}")
+    public ResponseEntity<?> viewChatHistory(@PathVariable String id, @RequestHeader("Authorization") String token, @RequestParam String friendId) {
+        if(!accountService.isAuthenticated(id, token)){
+            return ResponseEntity.status(401).body(new ErrorResponse("authentication failed"));
+        }
+        User user = accountService.findUser(id);
+        User friend = accountService.findUser(friendId);
+        Chatroom room = chatService.findOurChatroom(user, friend);
+        if(room == null){
+            return ResponseEntity.status(404).body(new ErrorResponse("chatroom not found"));
+        }
+        List<Message> messages = chatService.getAllMessage(room);
+        return ResponseEntity.status(200).body(messages);
     }
 
     @PostMapping("/message/{id}")
