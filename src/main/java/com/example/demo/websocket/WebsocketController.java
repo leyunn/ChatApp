@@ -15,6 +15,9 @@ import org.springframework.web.socket.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controller class that handles WebSocket communication.
+ */
 @Controller
 public class WebsocketController {
     @Autowired
@@ -23,6 +26,12 @@ public class WebsocketController {
     @Autowired
     WebsocketSessionManager websocketSessionManager;
 
+    /**
+     * Handles the "login" message received from the WebSocket client.
+     *
+     * @param auth            The authentication details provided by the client.
+     * @param headerAccessor  The StompHeaderAccessor object containing the WebSocket session details.
+     */
     @MessageMapping("login")
     public void login(Auth auth, StompHeaderAccessor headerAccessor) {
         if(!accountService.isAuthenticated(auth.getId(), auth.getToken())) return;
@@ -30,6 +39,9 @@ public class WebsocketController {
         System.out.println("new session: "+ auth.getId());
     }
 
+    /**
+     * Data class representing the authentication details.
+     */
     @Data
     @NoArgsConstructor
     private static class Auth{
@@ -37,4 +49,3 @@ public class WebsocketController {
         String token;
     }
 }
-
